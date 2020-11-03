@@ -55,6 +55,9 @@ using namespace arduino;
 /*  Constructor                             */
 /*********************************************/
 
+SafeString::SafeString(){
+  ;
+}
 
 // This constructor overwrites any data already in buf with cstr
 SafeString::SafeString(size_t maxLen, char *buf, const char* cstr, const char* _name) {
@@ -114,6 +117,67 @@ SafeString::SafeString(size_t maxLen, char *buf, const char* cstr, const char* _
   len = cstrLen;
   buffer[len] = '\0'; 
 }
+
+void SafeString::init(size_t maxLen, char *buf, const char* cstr, const char* _name = NULL){
+  name = _name; // save name
+  if (buf != NULL) {
+    buffer = buf;
+    if (maxLen > 0) {
+      _capacity = maxLen - 1;
+    } else {
+      _capacity = 0;
+    }
+    len = 0;
+    buffer[0] = '\0';
+  } else {
+#ifdef SSTRING_DEBUG
+    if (debugPtr) {
+      debugPtr->print(F("Error: SafeString("));
+      outputName(); debugPtr->print(F(", ...) was passed a NULL pointer for its buffer"));
+      debugInternalMsg(fullDebug);
+    }
+#endif // SSTRING_DEBUG
+    buffer = nullBufferSafeStringBuffer;
+    _capacity = 0;
+    len = 0;
+    buffer[0] = '\0';
+    return;
+  }
+	
+  if (cstr == NULL) {
+#ifdef SSTRING_DEBUG
+    if (debugPtr) {
+      debugPtr->print(F("Error: SafeString("));
+      outputName(); debugPtr->print(F(", ...) was passed a NULL pointer for initial value."));
+      debugInternalMsg(fullDebug);
+    }
+#endif // SSTRING_DEBUG
+    return;
+  }
+  size_t cstrLen = strlen(cstr);
+  if (cstrLen > _capacity) {
+#ifdef SSTRING_DEBUG
+    if (debugPtr) {
+      debugPtr->print(F("Error: SafeString("));
+      outputName(); debugPtr->print(F(", ...) needs capacity of ")); debugPtr->print(cstrLen);  debugPtr->print(F(" for initial value."));
+      if (fullDebug) {
+        debugPtr->println(); debugPtr->print(F("       "));
+        debugPtr->print(F(" Initial value arg was '")); debugPtr->print(cstr); debugPtr->print('\'');
+      }
+      debugInternalMsg(fullDebug);
+    }
+#endif // SSTRING_DEBUG
+    len = 0;
+    buffer[0] = '\0';
+    return;
+  }
+  memcpy(buffer, cstr, cstrLen);
+  len = cstrLen;
+  buffer[len] = '\0'; 
+
+
+}
+
 
 // this is private and should never be called.
 SafeString::SafeString(const SafeString& other ) {
