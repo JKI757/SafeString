@@ -119,7 +119,10 @@ class SafeString : public Printable, public Print {
 
   public:
     explicit SafeString(size_t maxLen, char *buf, const char* cstr, const char* _name = NULL);
-    
+  //added an empty constructor here to allow for declaration of an empty safestring
+    explicit SafeString();
+  //added an init method here to allow for initialization of a safestring constructed with the empty constructor
+    void init(size_t maxLen, char *buf, const char* cstr, const char* _name);
   private: // to force compile errors if function definition of the SafeString argument is not a refernce, i.e. not SafeString&   
     SafeString(const SafeString& other ); // You must declare SafeStrings function arguments as a reference, SafeString&,  e.g. void test(SafeString& strIn)
     // NO other constructors, NO conversion constructors
